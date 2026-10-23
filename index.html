@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FloodGuard AI | Chennai Flood Intelligence</title>
+<link rel="preconnect" href="https://unpkg.com">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+:root{--bg:#071426;--panel:#0d2038;--panel2:#102944;--line:#24415e;--text:#eaf4ff;--muted:#9bb3ca;--cyan:#42d9e8;--blue:#4e8dff;--red:#ff5d70;--amber:#ffc857;--green:#42d392}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0%,#12345a 0,transparent 34%),var(--bg);color:var(--text);font:15px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--cyan);color:#05202d;font-weight:750}
+button.secondary{background:#173451;color:var(--text);border:1px solid var(--line)}button:hover{filter:brightness(1.08)}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 4vw;border-bottom:1px solid #1a3450;background:#071426d9;position:sticky;top:0;z-index:1000;backdrop-filter:blur(12px)}
+.brand{display:flex;gap:12px;align-items:center}.logo{display:grid;place-items:center;width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#42d9e8,#4e8dff);color:#071426;font-size:22px;font-weight:900}.brand h1{font-size:18px;margin:0}.brand small{display:block;color:var(--muted);font-size:12px}.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pill{border:1px solid var(--line);padding:7px 10px;border-radius:999px;color:var(--muted);font-size:12px}.pill b{color:var(--amber)}
+main{max-width:1440px;margin:auto;padding:28px 4vw 48px}.intro{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:22px}.eyebrow{color:var(--cyan);text-transform:uppercase;letter-spacing:2px;font-size:11px;font-weight:800}.intro h2{font-size:clamp(25px,3vw,38px);line-height:1.12;margin:7px 0}.intro p{margin:0;color:var(--muted);max-width:700px}.intro-actions{display:flex;gap:9px;flex-wrap:wrap}
+.demo-note{margin:16px 0;padding:11px 14px;border:1px solid #6e5722;background:#302715;color:#ffe4a0;border-radius:10px;font-size:12px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:18px 0}.metric,.panel{background:linear-gradient(145deg,#102640,#0b1b30);border:1px solid var(--line);border-radius:17px;box-shadow:0 12px 30px #00000015}.metric{padding:17px}.metric-top{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px}.metric .value{font-size:30px;font-weight:800;letter-spacing:-1px;margin:8px 0 2px}.metric .sub{font-size:12px;color:var(--muted)}.dot{width:9px;height:9px;border-radius:50%;display:inline-block;background:var(--cyan);margin-right:6px}.red{color:var(--red)!important}.amber{color:var(--amber)!important}.green{color:var(--green)!important}
+.content-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,.9fr);gap:16px}.panel{padding:18px;min-width:0}.panel-head{display:flex;justify-content:space-between;align-items:start;gap:12px;margin-bottom:14px}.panel h3{font-size:16px;margin:0}.panel .hint{font-size:12px;color:var(--muted);margin-top:4px}.map-legend{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin-bottom:10px}.legend-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px}#map{height:420px;border-radius:12px;overflow:hidden;background:#142d45;border:1px solid var(--line)}.map-foot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted);font-size:11px;margin-top:10px}
+.side-stack{display:grid;gap:16px;align-content:start}.risk-box{padding:14px;border:1px solid #7b3545;background:#311c2b;border-radius:13px}.risk-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.risk-badge{padding:4px 8px;border-radius:999px;font-size:11px;font-weight:800;background:#6d2938;color:#ffdce1}.risk-box h4{margin:7px 0 4px}.risk-box p{color:#d3b9c0;font-size:12px;margin:0}.risk-list{display:grid;gap:10px}.risk-row{display:grid;grid-template-columns:1fr auto;gap:8px;padding:11px 0;border-bottom:1px solid #1d3954}.risk-row:last-child{border:0}.risk-row strong{font-size:13px}.risk-row small{display:block;color:var(--muted);font-size:11px}.risk-score{font-size:12px;font-weight:800}.resource{display:flex;gap:11px;align-items:start;padding:11px 0;border-bottom:1px solid #1d3954}.resource:last-child{border:0}.resource-icon{width:36px;height:36px;display:grid;place-items:center;background:#173a53;border-radius:10px;font-size:17px;flex-shrink:0}.resource strong{font-size:13px;display:block}.resource small{font-size:11px;color:var(--muted);display:block}.resource .status{margin-left:auto;font-size:10px;color:var(--green);white-space:nowrap}
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}.control{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:13px 0}.control label{font-size:13px;color:#c5d9ec}.control output{font-weight:800;color:var(--cyan)}input[type=range]{grid-column:1/-1;width:100%;accent-color:var(--cyan)}select{background:#0a1b2e;border:1px solid var(--line);color:var(--text);padding:9px;border-radius:9px;width:100%}.chart{height:130px;display:flex;align-items:end;gap:9px;padding:10px 4px 0;border-bottom:1px solid var(--line)}.bar-wrap{flex:1;text-align:center;color:var(--muted);font-size:10px}.bar{border-radius:5px 5px 0 0;background:linear-gradient(180deg,var(--cyan),#3179b8);min-height:5px;margin:0 auto 7px;width:min(28px,80%)}.bar-label{font-size:10px}
+.route-card{padding:12px;border-radius:12px;background:#102d35;border:1px solid #1b625e;margin-top:10px}.route-card strong{color:var(--green)}.route-card p{font-size:12px;color:#b4d5d3;margin:5px 0 0}.footer{text-align:center;color:#7792ab;font-size:11px;padding:24px 0 0}.toast{position:fixed;bottom:20px;right:20px;background:#eaf4ff;color:#071426;padding:12px 16px;border-radius:10px;box-shadow:0 10px 30px #0008;display:none;z-index:2000;font-weight:700}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#0d2038;color:#eaf4ff}.leaflet-popup-content{font-size:12px}.leaflet-container a{color:#42d9e8}
+@media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}.content-grid{grid-template-columns:1fr}.bottom-grid{grid-template-columns:1fr}.intro{align-items:start;flex-direction:column}header{position:static}#map{height:350px}}
+@media(max-width:520px){.metrics{grid-template-columns:1fr 1fr;gap:8px}.metric{padding:12px}.metric .value{font-size:24px}main{padding:20px 4vw}.header-right .pill{display:none}.panel{padding:13px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">≈</div><div><h1>FloodGuard <span style="color:var(--cyan)">AI</span></h1><small>LOCAL FLOOD-RISK & EMERGENCY ASSISTANT</small></div></div>
+  <div class="header-right"><span class="pill"><b>● DEMO MODE</b> · simulated data</span><button class="secondary" id="refreshBtn">↻ Refresh demo</button></div>
+</header>
+<main>
+  <section class="intro">
+    <div><div class="eyebrow">Chennai · Flood intelligence</div><h2>Know the risk. <span style="color:var(--cyan)">Act earlier.</span></h2><p>A prototype dashboard to explore flood-risk signals, neighborhood reports, and emergency resources in one place.</p></div>
+    <div class="intro-actions"><button id="reportBtn">＋ Report local flooding</button><button class="secondary" id="downloadBtn">Export snapshot</button></div>
+  </section>
+  <div class="demo-note">⚠ Prototype notice: risk scores, rainfall readings, reports, shelters, and route guidance on this page are illustrative demo data—not live forecasts or verified emergency information. Do not use for real-world evacuation decisions.</div>
+  <section class="metrics">
+    <div class="metric"><div class="metric-top">Overall demo risk <span>◉</span></div><div class="value amber" id="overallRisk">MODERATE</div><div class="sub" id="riskSub">Changes with rainfall simulation</div></div>
+    <div class="metric"><div class="metric-top">Simulated rainfall <span>☂</span></div><div class="value" id="rainMetric">42 <span style="font-size:14px;color:var(--muted)">mm</span></div><div class="sub">Illustrative recent rainfall</div></div>
+    <div class="metric"><div class="metric-top">Neighborhood reports <span>⌖</span></div><div class="value" id="reportMetric">12</div><div class="sub">Sample reports in demo dataset</div></div>
+    <div class="metric"><div class="metric-top">Resources listed <span>＋</span></div><div class="value">4</div><div class="sub">Demo entries · verify locally</div></div>
+  </section>
+  <section class="content-grid">
+    <div class="panel">
+      <div class="panel-head"><div><h3>Chennai risk map</h3><div class="hint">Illustrative zones · select a marker for details</div></div><span class="pill">Map view</span></div>
+      <div class="map-legend"><span><i class="legend-dot" style="background:#ff5d70"></i>High demo risk</span><span><i class="legend-dot" style="background:#ffc857"></i>Moderate</span><span><i class="legend-dot" style="background:#42d392"></i>Lower</span></div>
+      <div id="map"></div>
+      <div class="map-foot"><span>Map tiles require an internet connection.</span><span>Zones are illustrative, not official flood boundaries.</span></div>
+    </div>
+    <div class="side-stack">
+      <div class="panel"><div class="panel-head"><div><h3>Priority risk areas</h3><div class="hint">Example locations and simulated scores</div></div></div><div class="risk-list" id="riskList"></div></div>
+      <div class="panel"><div class="panel-head"><div><h3>Emergency resources</h3><div class="hint">Demo directory · check official sources</div></div></div>
+        <div class="resource"><div class="resource-icon">🏥</div><div><strong>Emergency medical care</strong><small>Use verified local hospital information</small></div><span class="status">Directory</span></div>
+        <div class="resource"><div class="resource-icon">🏫</div><div><strong>Potential relief shelter</strong><small>Confirm opening and capacity before travel</small></div><span class="status">Unverified</span></div>
+        <div class="resource"><div class="resource-icon">☎</div><div><strong>India emergency number</strong><small>112 · national emergency response</small></div><span class="status">Official</span></div>
+        <div class="resource"><div class="resource-icon">📢</div><div><strong>Local authority updates</strong><small>Follow official district / disaster alerts</small></div><span class="status">Verify</span></div>
+      </div>
+    </div>
+  </section>
+  <section class="bottom-grid">
+    <div class="panel"><div class="panel-head"><div><h3>Rainfall scenario simulator</h3><div class="hint">Adjust the sample input to see demo risk scores respond</div></div><span class="pill">Interactive</span></div>
+      <div class="control"><label for="rainSlider">Rainfall in selected scenario</label><output id="rainOut">42 mm</output><input id="rainSlider" type="range" min="0" max="180" value="42" step="3"></div>
+      <div class="control"><label for="durationSelect">Duration</label><select id="durationSelect"><option value="1">Last 1 hour (demo)</option><option value="3" selected>Last 3 hours (demo)</option><option value="6">Last 6 hours (demo)</option><option value="12">Last 12 hours (demo)</option></select></div>
+      <div class="route-card"><strong id="scenarioTitle">Moderate scenario</strong><p id="scenarioText">Use this simulator to demonstrate how risk indicators might change. It is not a validated forecasting model.</p></div>
+    </div>
+    <div class="panel"><div class="panel-head"><div><h3>Rainfall trend</h3><div class="hint">Illustrative sample values · millimeters</div></div></div><div class="chart" id="chart"></div><div class="map-foot"><span>Sample trend, not a live sensor feed.</span><span id="trendLabel">Peak: 42 mm</span></div></div>
+  </section>
+  <div class="footer">FloodGuard AI · Hackathon prototype · Always verify warnings and routes with official authorities.</div>
+</main>
+<div class="toast" id="toast"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const zones = [
+ {name:"Velachery",lat:12.9815,lng:80.2180,base:78,note:"Low-lying-area example; check official alerts."},
+ {name:"T. Nagar",lat:13.0418,lng:80.2337,base:58,note:"Dense urban-area example; report data is simulated."},
+ {name:"Saidapet",lat:13.0213,lng:80.2231,base:69,note:"Near-waterway example; verify current conditions."},
+ {name:"Perungudi",lat:12.9600,lng:80.2400,base:47,note:"Coastal corridor example; risk score is illustrative."},
+ {name:"Anna Nagar",lat:13.0850,lng:80.2101,base:29,note:"Lower relative demo score; not a safety guarantee."}
+];
+let map, markers=[], circles=[];
+const $=id=>document.getElementById(id);
+function riskFor(z,rain,duration){return Math.max(8,Math.min(98,Math.round(z.base + (rain-42)*0.30 + (duration-3)*1.5)))}
+function level(score){return score>=75?["HIGH","#ff5d70"]:score>=45?["MODERATE","#ffc857"]:["LOWER","#42d392"]}
+function showToast(msg){const t=$("toast");t.textContent=msg;t.style.display="block";setTimeout(()=>t.style.display="none",2600)}
+function initMap(){
+ if(!window.L){$("map").innerHTML='<div style="padding:24px;color:#eaf4ff">Map library could not load. Connect to the internet and refresh.</div>';return}
+ map=L.map('map').setView([13.045,80.225],11);
+ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors',maxZoom:18}).addTo(map);
+ zones.forEach(z=>{
+  const score=riskFor(z,Number($("rainSlider").value),Number($("durationSelect").value)),c=level(score)[1];
+  const circle=L.circle([z.lat,z.lng],{radius:700,color:c,fillColor:c,fillOpacity:.22,weight:2}).addTo(map);
+  circle.bindPopup(`<b>${z.name}</b><br>Demo risk score: ${score}/100<br>${z.note}`);
+  const marker=L.circleMarker([z.lat,z.lng],{radius:7,color:"#eaf4ff",weight:2,fillColor:c,fillOpacity:1}).addTo(map);
+  marker.bindPopup(`<b>${z.name}</b><br>Demo risk score: ${score}/100<br>${z.note}`);
+  circles.push(circle);markers.push(marker);
+ });
+}
+function updateMap(){
+ if(!map)return;
+ zones.forEach((z,i)=>{const s=riskFor(z,+$("rainSlider").value,+$("durationSelect").value),c=level(s)[1];circles[i].setStyle({color:c,fillColor:c});markers[i].setStyle({fillColor:c});markers[i].setPopupContent(`<b>${z.name}</b><br>Demo risk score: ${s}/100<br>${z.note}`);circles[i].setPopupContent(`<b>${z.name}</b><br>Demo risk score: ${s}/100<br>${z.note}`)})
+}
+function render(){
+ const rain=+$("rainSlider").value,duration=+$("durationSelect").value;
+ $("rainOut").textContent=rain+" mm";$("rainMetric").innerHTML=rain+' <span style="font-size:14px;color:var(--muted)">mm</span>';
+ const scores=zones.map(z=>({ ...z,score:riskFor(z,rain,duration)})).sort((a,b)=>b.score-a.score);
+ const avg=Math.round(scores.reduce((s,z)=>s+z.score,0)/scores.length),lev=level(avg);
+ $("overallRisk").textContent=lev[0];$("overallRisk").style.color=lev[1];
+ $("riskSub").textContent=avg+"/100 average illustrative score";
+ $("riskList").innerHTML=scores.slice(0,4).map(z=>{const l=level(z.score);return `<div class="risk-row"><div><strong>${z.name}</strong><small>${z.note}</small></div><div class="risk-score" style="color:${l[1]}">${z.score}/100<br><small style="text-align:right;color:${l[1]}">${l[0]}</small></div></div>`}).join("");
+ const title=rain>=100?"High rainfall scenario":rain>=45?"Moderate rainfall scenario":"Lower rainfall scenario";
+ $("scenarioTitle").textContent=title;
+ $("scenarioText").textContent=rain>=100?"The simulated scores rise under this high-rainfall input. This does not represent a real forecast.":rain>=45?"Risk scores increase in this illustrative scenario. Check official alerts before making decisions.":"Scores are lower in this example, but a low demo score does not mean an area is safe.";
+ const vals=[Math.max(0,rain*.18),Math.max(0,rain*.35),Math.max(0,rain*.23),Math.max(0,rain*.56),rain];
+ $("chart").innerHTML=vals.map((v,i)=>`<div class="bar-wrap"><div class="bar" style="height:${Math.max(5,Math.min(100,v/180*100))}px"></div><div class="bar-label">${["-4h","-3h","-2h","-1h","Now"][i]}</div></div>`).join("");
+ $("trendLabel").textContent="Peak: "+Math.round(Math.max(...vals))+" mm (demo)";
+ updateMap();
+}
+$("rainSlider").addEventListener("input",render);$("durationSelect").addEventListener("change",render);
+$("refreshBtn").addEventListener("click",()=>{const v=Math.round((Math.random()*60+18)/3)*3;$("rainSlider").value=v;render();showToast("Demo scenario refreshed — simulated data only.")});
+$("reportBtn").addEventListener("click",()=>{const place=prompt("Which neighborhood is your sample report about?");if(!place)return;const details=prompt("Describe the observed condition (demo report only):");if(!details)return;const old=+$("reportMetric").textContent;$("reportMetric").textContent=old+1;showToast("Demo report added locally. It is not sent to authorities.");});
+$("downloadBtn").addEventListener("click",()=>{const data={project:"FloodGuard AI",mode:"SIMULATED DEMO DATA",rainfall_mm:+$("rainSlider").value,duration_hours:+$("durationSelect").value,areas:zones.map(z=>({name:z.name,illustrative_risk_score:riskFor(z,+$("rainSlider").value,+$("durationSelect").value)})),notice:"Not a real forecast. Verify official alerts and routes."};const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));a.download="floodguard-demo-snapshot.json";a.click();URL.revokeObjectURL(a.href);showToast("Snapshot exported.");});
+initMap();render();
+</script>
+</body>
+</html>
